@@ -17,8 +17,7 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  // const url = new URL(req.url, `http://${req.headers.host}`);
-  const url = new URL(req.url, `https://mr-portfolio-tawny.vercel.app`);
+  const url = new URL(req.url, `http://${req.headers.host}`);
 
   try {
     for (const route of routes) {
