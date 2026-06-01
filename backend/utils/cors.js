@@ -4,6 +4,7 @@ const allowedOrigins = new Set([
   "http://localhost:4173",
   "http://127.0.0.1:4173",
   "https://mr-portfolio-tawny.vercel.app/",
+  "https://mrportfolio-backend.onrender.com/"
 ]);
 
 export const withCors = (req, res) => {
