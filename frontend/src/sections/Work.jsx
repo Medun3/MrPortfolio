@@ -43,6 +43,7 @@ import pf4 from "../assets/pf4.png";
 import pf5 from "../assets/pf5.png";
 import pf6 from "../assets/pf6.png";
 import pf7 from "../assets/pf7.png";
+import pf8 from "../assets/pf8.jpg";
 
 import work from "../assets/work.png";
 const projects = [
@@ -87,7 +88,7 @@ const projects = [
   },
   {
     img: pf1,
-    gallery: [pf1, pf2, pf3, pf4, pf5, pf6, pf7],
+    gallery: [pf1, pf2, pf3, pf4, pf5, pf6, pf7, pf8],
     title: "Portfolio Website",
     role: "Full Stack Developer (MERN)",
     description:

@@ -25,7 +25,6 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/about" element={<About />} />
         <Route path="/admin/resume" element={<ResumeCms />} />
-        <Route path="/adim/resume" element={<Navigate replace to="/admin/resume" />} />
       </Routes>
     </BrowserRouter>
   );
