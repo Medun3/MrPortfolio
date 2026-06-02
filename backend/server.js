@@ -19,6 +19,27 @@ const server = createServer(async (req, res) => {
 
   const url = new URL(req.url, `http://${req.headers.host}`);
 
+  // Health check endpoint for probes and easy diagnostics
+  if (url.pathname === "/health") {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ status: "ok" }));
+    return;
+  }
+
+  // Diagnostic endpoint (non-secret): returns status of key config flags
+  if (url.pathname === "/_diag") {
+    const payload = {
+      status: "ok",
+      port: config.port,
+      emailConfigured: Boolean(config.emailUser && config.emailPass),
+      nodeEnv: process.env.NODE_ENV || "development",
+      allowedOrigins: process.env.ALLOWED_ORIGINS || null,
+    };
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(payload));
+    return;
+  }
+
   try {
     for (const route of routes) {
       const handled = await route(req, res, url);
@@ -27,10 +48,30 @@ const server = createServer(async (req, res) => {
 
     sendError(res, 404, "Route not found.");
   } catch (error) {
+    // Log full error for debugging and return safe message to client
+    console.error("Unhandled server error:", error);
     sendError(res, error.statusCode || 500, error.message || "Server error.");
   }
+});
+
+// Global process handlers to surface unexpected crashes during startup/runtime
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught exception:", err);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled rejection:", reason);
 });
 
 server.listen(config.port, () => {
   console.log(`Portfolio backend running on http://localhost:${config.port}`);
 });
+
+// Startup diagnostics (do not log secrets)
+console.log("Node env:", process.env.NODE_ENV || "development");
+console.log("Email user configured:", Boolean(config.emailUser));
+console.log("Email pass configured:", Boolean(config.emailPass));
+console.log("Allowed origins:", process.env.ALLOWED_ORIGINS || "(default list)");
+
+// (diagnostic endpoint handled above in main request handler)
