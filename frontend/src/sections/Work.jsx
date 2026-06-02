@@ -154,9 +154,9 @@ const prevImage = () => {
         </p>
 
         <div className="grid md:grid-cols-2 gap-8">
-          {projects.map((project) => (
+          {projects.map((project, index) => (
             <article
-              key={project.title}
+              key={`${project.title}-${index}`}
               className="bg-[#111] rounded-xl overflow-hidden hover:scale-[1.03] transition duration-500"
             >
               <button
@@ -182,9 +182,9 @@ const prevImage = () => {
                 </p>
 
                 <div className="flex flex-wrap gap-2">
-                  {project.tech.map((tech) => (
+                  {project.tech.map((tech, tIndex) => (
                     <span
-                      key={tech}
+                      key={`${tech}-${tIndex}`}
                       className="text-xs bg-white text-black px-2 py-1 rounded-full"
                     >
                       {tech}
@@ -214,7 +214,7 @@ const prevImage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-8">
           {selectedImages.map((img, index) => (
             <img
-              key={img}
+              key={`${img}-${index}`}
               src={img}
               alt="Project gallery"
               onClick={() => handleImageZoom(index)}
