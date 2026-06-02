@@ -64,6 +64,16 @@ process.on("unhandledRejection", (reason) => {
   console.error("Unhandled rejection:", reason);
 });
 
+server.on("error", (error) => {
+  if (error.code === "EADDRINUSE") {
+    console.error(`Port ${config.port} is already in use. Stop the existing backend or set a different PORT.`);
+    console.error(`Find the process on Windows: netstat -ano | findstr :${config.port}`);
+  } else {
+    console.error("Server failed to start:", error);
+  }
+  process.exit(1);
+});
+
 server.listen(config.port, () => {
   console.log(`Portfolio backend running on http://localhost:${config.port}`);
 });
