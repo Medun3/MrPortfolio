@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Home from "./pages/Home";
 import ExploreMore from "./pages/ExploreMore";
@@ -25,6 +25,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/about" element={<About />} />
         <Route path="/admin/resume" element={<ResumeCms />} />
+        <Route path="/adim/resume" element={<Navigate replace to="/admin/resume" />} />
       </Routes>
     </BrowserRouter>
   );
