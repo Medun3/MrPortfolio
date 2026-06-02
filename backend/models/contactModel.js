@@ -20,20 +20,46 @@ const createMailTransport = ({ host, port, secure }) => {
     throw new EmailConfigError();
   }
 
-  return nodemailer.createTransport({
-    host,
-    port,
-    secure,
-    requireTLS: !secure,
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
-    auth: {
-      user: config.emailUser,
-      pass: config.emailPass,
-    },
-  });
+//   return nodemailer.createTransport({
+//     host,
+//     port,
+//     secure,
+//     requireTLS: !secure,
+//     connectionTimeout: 10000,
+//     greetingTimeout: 10000,
+//     socketTimeout: 15000,
+//     auth: {
+//       user: config.emailUser,
+//       pass: config.emailPass,
+//     },
+//   });
+
+
+return nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  family: 4, // Force IPv4
+  requireTLS: true,
+
+  connectionTimeout: 30000,
+  greetingTimeout: 30000,
+  socketTimeout: 30000,
+
+  auth: {
+    user: config.emailUser,
+    pass: config.emailPass,
+  },
+
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
+
 };
+
+
+
 
 const logMailError = (label, error) => {
   console.error(label, {
