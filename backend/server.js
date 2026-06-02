@@ -6,7 +6,8 @@ import { downloadRoutes } from "./routes/downloadRoutes.js";
 import { resumeRoutes } from "./routes/resumeRoutes.js";
 import { withCors } from "./utils/cors.js";
 import { sendError } from "./utils/http.js";
-
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first');
 const routes = [contactRoutes, downloadRoutes, resumeRoutes];
 
 const server = createServer(async (req, res) => {

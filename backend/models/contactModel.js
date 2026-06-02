@@ -35,27 +35,51 @@ const createMailTransport = ({ host, port, secure }) => {
 //   });
 
 
+// return nodemailer.createTransport({
+//   host: "smtp.gmail.com",
+//   port: 587,
+//   secure: false,
+//   family: 4, // Force IPv4
+//   requireTLS: true,
+
+//   connectionTimeout: 30000,
+//   greetingTimeout: 30000,
+//   socketTimeout: 30000,
+
+//   auth: {
+//     user: config.emailUser,
+//     pass: config.emailPass,
+//   },
+
+//   tls: {
+//     rejectUnauthorized: false,
+//   },
+// });
+
 return nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
-  secure: false,
-  family: 4, // Force IPv4
-  requireTLS: true,
+  secure: false, // Must be false for 587
+  
+  // Crucial for Render network routing
+  family: 4, 
 
-  connectionTimeout: 30000,
-  greetingTimeout: 30000,
-  socketTimeout: 30000,
+  // Timeouts (Increased to give Render enough time to route)
+  connectionTimeout: 45000, 
+  greetingTimeout: 45000,
+  socketTimeout: 45000,
 
   auth: {
     user: config.emailUser,
-    pass: config.emailPass,
+    pass: config.emailPass, // Make sure this is a 16-character App Password, NO spaces
   },
 
   tls: {
-    rejectUnauthorized: false,
+    // Keeps connection from dropping if Render's proxy interferes
+    ciphers: 'SSLv3',
+    rejectUnauthorized: false
   },
 });
-
 };
 
 
