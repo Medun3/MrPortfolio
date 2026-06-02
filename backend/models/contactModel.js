@@ -19,6 +19,9 @@ const createMailTransport = () => {
     host: "smtp.gmail.com",
     port: 465,
     secure: true,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
     auth: {
       user: config.emailUser,
       pass: config.emailPass,
@@ -64,7 +67,13 @@ export const sendContactEmails = async ({ name, email, message }) => {
       `,
     });
   } catch (error) {
-    console.error("Contact email failed:", error.message);
+    console.error("Contact email failed:", {
+      code: error.code,
+      command: error.command,
+      response: error.response,
+      responseCode: error.responseCode,
+      message: error.message,
+    });
     throw new EmailSendError();
   }
 };

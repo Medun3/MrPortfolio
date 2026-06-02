@@ -28,10 +28,13 @@ export const loadEnv = () => {
 
 loadEnv();
 
+const cleanEnvValue = (value) => String(value || "").trim();
+const cleanAppPassword = (value) => cleanEnvValue(value).replace(/\s+/g, "");
+
 export const config = {
   port: Number(process.env.PORT || 5000),
-  adminToken: process.env.ADMIN_TOKEN || "Medun@156",
-  contactToEmail: process.env.CONTACT_TO_EMAIL || "medunraj3@gmail.com",
-  emailUser: process.env.EMAIL_USER || "",
-  emailPass: process.env.EMAIL_PASS || "",
+  adminToken: cleanEnvValue(process.env.ADMIN_TOKEN) || "Medun@156",
+  contactToEmail: cleanEnvValue(process.env.CONTACT_TO_EMAIL) || "medunraj3@gmail.com",
+  emailUser: cleanEnvValue(process.env.EMAIL_USER),
+  emailPass: cleanAppPassword(process.env.EMAIL_PASS),
 };
