@@ -10,15 +10,21 @@ const escapeHtml = (value) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
-const createMailTransport = () => {
+const mailServers = [
+  { host: "smtp.gmail.com", port: 465, secure: true },
+  { host: "smtp.gmail.com", port: 587, secure: false },
+];
+
+const createMailTransport = ({ host, port, secure }) => {
   if (!config.emailUser || !config.emailPass) {
     throw new EmailConfigError();
   }
 
   return nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
+    host,
+    port,
+    secure,
+    requireTLS: !secure,
     connectionTimeout: 10000,
     greetingTimeout: 10000,
     socketTimeout: 15000,
@@ -29,15 +35,54 @@ const createMailTransport = () => {
   });
 };
 
+const logMailError = (label, error) => {
+  console.error(label, {
+    code: error.code,
+    command: error.command,
+    response: error.response,
+    responseCode: error.responseCode,
+    message: error.message,
+  });
+};
+
+const createVerifiedMailTransport = async () => {
+  let lastError;
+
+  for (const server of mailServers) {
+    const transport = createMailTransport(server);
+
+    try {
+      await transport.verify();
+      console.log(`Gmail SMTP verified on ${server.host}:${server.port}`);
+      return transport;
+    } catch (error) {
+      lastError = error;
+      logMailError(`Gmail SMTP verify failed on ${server.host}:${server.port}:`, error);
+    }
+  }
+
+  throw lastError || new Error("Gmail SMTP verification failed.");
+};
+
+export const verifyContactEmailTransport = async () => {
+  const transport = await createVerifiedMailTransport();
+  transport.close();
+};
+
 export const sendContactEmails = async ({ name, email, message }) => {
-  const transport = createMailTransport();
+  let transport;
   const safeName = escapeHtml(name);
   const safeEmail = escapeHtml(email);
   const safeMessage = escapeHtml(message).replaceAll("\n", "<br>");
 
   try {
-    await transport.verify();
+    transport = await createVerifiedMailTransport();
+  } catch (error) {
+    logMailError("Contact email verify failed:", error);
+    throw new EmailSendError();
+  }
 
+  try {
     await transport.sendMail({
       from: `"Portfolio Contact" <${config.emailUser}>`,
       to: config.contactToEmail,
@@ -52,7 +97,12 @@ export const sendContactEmails = async ({ name, email, message }) => {
         <p>${safeMessage}</p>
       `,
     });
+  } catch (error) {
+    logMailError("Contact owner email failed:", error);
+    throw new EmailSendError();
+  }
 
+  try {
     await transport.sendMail({
       from: `"Medun Raj" <${config.emailUser}>`,
       to: email,
@@ -67,13 +117,6 @@ export const sendContactEmails = async ({ name, email, message }) => {
       `,
     });
   } catch (error) {
-    console.error("Contact email failed:", {
-      code: error.code,
-      command: error.command,
-      response: error.response,
-      responseCode: error.responseCode,
-      message: error.message,
-    });
-    throw new EmailSendError();
+    logMailError("Contact auto-reply email skipped:", error);
   }
 };

@@ -3,8 +3,8 @@ const defaultOrigins = [
   "http://127.0.0.1:5173",
   "http://localhost:4173",
   "http://127.0.0.1:4173",
-  "https://mr-portfolio-sepia.vercel.app",
-  "https://mr-portfolio-qcwrfsa5f-medunrajs-projects.vercel.app",
+  // "https://mr-portfolio-sepia.vercel.app",
+  // "https://mr-portfolio-qcwrfsa5f-medunrajs-projects.vercel.app",
 ];
 
 const envOrigins = (process.env.ALLOWED_ORIGINS || "").split(",").map((s) => s.trim()).filter(Boolean);

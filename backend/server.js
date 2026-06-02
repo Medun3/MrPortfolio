@@ -1,5 +1,6 @@
 import { createServer } from "node:http";
 import { config } from "./config/env.js";
+import { verifyContactEmailTransport } from "./models/contactModel.js";
 import { contactRoutes } from "./routes/contactRoutes.js";
 import { downloadRoutes } from "./routes/downloadRoutes.js";
 import { resumeRoutes } from "./routes/resumeRoutes.js";
@@ -37,6 +38,24 @@ const server = createServer(async (req, res) => {
     };
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(payload));
+    return;
+  }
+
+  if (url.pathname === "/_smtp-check") {
+    const token = req.headers["x-admin-token"] || url.searchParams.get("token");
+    if (token !== config.adminToken) {
+      sendError(res, 401, "Unauthorized.");
+      return;
+    }
+
+    try {
+      await verifyContactEmailTransport();
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ status: "ok", message: "Gmail SMTP verified." }));
+    } catch (error) {
+      console.error("SMTP diagnostic failed:", error);
+      sendError(res, error.statusCode || 502, error.message || "Gmail SMTP verification failed.");
+    }
     return;
   }
 
