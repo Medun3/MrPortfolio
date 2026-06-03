@@ -57,8 +57,8 @@ const createMailTransport = ({ host, port, secure }) => {
 // });
 
 return nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
+  // host: "smtp.gmail.com",
+  // port: 587,
   secure: false, // Must be false for 587
   
   // Crucial for Render network routing
@@ -102,8 +102,8 @@ const createVerifiedMailTransport = async () => {
     const transport = createMailTransport(server);
 
     try {
-      await transport.verify();
-      console.log(`Gmail SMTP verified on ${server.host}:${server.port}`);
+      // await transport.verify();
+      // console.log(`Gmail SMTP verified on ${server.host}:${server.port}`);
       return transport;
     } catch (error) {
       lastError = error;
@@ -170,3 +170,4 @@ export const sendContactEmails = async ({ name, email, message }) => {
     logMailError("Contact auto-reply email skipped:", error);
   }
 };
+
