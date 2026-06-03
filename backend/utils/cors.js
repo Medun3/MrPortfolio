@@ -16,17 +16,23 @@ const allowedOrigins = new Set(
     .filter(Boolean)
 );
 
+const isAllowedOrigin = (origin) =>
+  origin &&
+  (allowedOrigins.has(origin) ||
+    origin.endsWith(".vercel.app") ||
+    origin.endsWith(".onrender.com"));
+
 export const withCors = (req, res) => {
   const origin = normalizeOrigin(req.headers.origin);
 
-  // In development, be permissive for convenience
-  if (process.env.NODE_ENV !== "production") {
-    res.setHeader("Access-Control-Allow-Origin", origin || "*");
-  } else if (origin && allowedOrigins.has(origin)) {
+  if (isAllowedOrigin(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
+  } else if (process.env.NODE_ENV !== "production") {
+    res.setHeader("Access-Control-Allow-Origin", origin || "*");
   }
 
   res.setHeader("Vary", "Origin");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  res.setHeader("Access-Control-Max-Age", "86400");
 };
