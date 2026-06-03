@@ -10,10 +10,10 @@ const escapeHtml = (value) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
-const mailServers = [
-  { host: "smtp.gmail.com", port: 465, secure: true },
-  { host: "smtp.gmail.com", port: 587, secure: false },
-];
+// const mailServers = [
+//   { host: "smtp.gmail.com", port: 465, secure: true },
+//   { host: "smtp.gmail.com", port: 587, secure: false },
+// ];
 
 const createMailTransport = ({ host, port, secure }) => {
   if (!config.emailUser || !config.emailPass) {
