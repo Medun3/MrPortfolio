@@ -199,8 +199,8 @@ const prevImage = () => {
 
 {
   isGalleryOpen && (
-    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 px-5">
-      <div className="relative bg-[#111] p-5 rounded-lg max-w-5xl w-full">
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 px-4 py-6">
+      <div className="relative bg-[#111] p-4 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
         
         <button
           type="button"
@@ -211,14 +211,14 @@ const prevImage = () => {
           ×
         </button>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-8 max-h-[72vh] overflow-y-auto pr-1">
           {selectedImages.map((img, index) => (
             <img
               key={`${img}-${index}`}
               src={img}
               alt="Project gallery"
               onClick={() => handleImageZoom(index)}
-              className="w-full h-[200px] object-fill rounded-lg cursor-pointer hover:scale-105 transition duration-300"
+              className="w-full h-[180px] sm:h-[200px] object-cover rounded-lg cursor-pointer hover:scale-105 transition duration-300"
             />
           ))}
         </div>
@@ -226,12 +226,12 @@ const prevImage = () => {
 
       {/* Zoom View */}
       {zoomIndex !== null && (
-        <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[60] p-5">
+        <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[60] p-4">
           
           {/* Close Button */}
           <button
             onClick={closeZoom}
-            className="absolute top-5 right-5 text-white text-4xl"
+            className="absolute top-4 right-4 text-white text-4xl"
           >
             ×
           </button>
@@ -239,7 +239,7 @@ const prevImage = () => {
           {/* Previous Button */}
           <button
             onClick={prevImage}
-            className="absolute left-5 text-white text-5xl bg-black/40 px-4 py-2 rounded-full hover:bg-black/70 transition"
+            className="absolute left-4 text-white text-5xl bg-black/40 px-4 py-2 rounded-full hover:bg-black/70 transition"
           >
             ❮
           </button>
@@ -248,13 +248,13 @@ const prevImage = () => {
           <img
             src={selectedImages[zoomIndex]}
             alt="Zoomed"
-            className="max-w-full max-h-[90vh] object-contain rounded-lg"
+            className="max-w-full max-h-[80vh] object-contain rounded-lg"
           />
 
           {/* Next Button */}
           <button
             onClick={nextImage}
-            className="absolute right-5 text-white text-5xl bg-black/40 px-4 py-2 rounded-full hover:bg-black/70 transition"
+            className="absolute right-4 text-white text-5xl bg-black/40 px-4 py-2 rounded-full hover:bg-black/70 transition"
           >
             ❯
           </button>
