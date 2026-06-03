@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   PenLine,
@@ -15,6 +16,8 @@ const blogs = [
     title: "Building Things From Scratch",
     description:
       "I enjoy turning ideas into real projects — starting from blank screens and ending with something useful.",
+    content:
+      "In every project I start from the core idea: what problem am I solving, who will use it, and how can it stay simple. I prototype early, build iteratively, and keep the user experience smooth.",
     date: "May 2026",
   },
   {
@@ -22,6 +25,8 @@ const blogs = [
     title: "Minimal Design Thinking",
     description:
       "Less noise, more clarity. I focus on clean UI, spacing, and simple user experience.",
+    content:
+      "Minimal design is not about removing features — it is about removing distractions. I craft interfaces that feel calm, readable, and easy to navigate.",
     date: "April 2026",
   },
   {
@@ -29,6 +34,8 @@ const blogs = [
     title: "Focus & Flow State",
     description:
       "Coding with music helps me stay in flow — where time disappears and ideas come alive.",
+    content:
+      "I use playlists, structure, and focused sprints to stay productive. When I find the right rhythm, complex bugs and creative design choices become easier to solve.",
     date: "March 2026",
   },
 
@@ -38,6 +45,8 @@ const blogs = [
     title: "MERN Stack Journey",
     description:
       "My experience learning and building full-stack applications using MongoDB, Express, React, and Node.",
+    content:
+      "I built real applications by combining MongoDB for data, Express and Node for backend APIs, and React for smooth frontend experiences. This journey taught me how to connect services reliably and ship full web products.",
     date: "Feb 2026",
   },
   {
@@ -52,11 +61,19 @@ const blogs = [
     title: "From Ideas to Deployment",
     description:
       "How I take a project from concept, design, development, and finally deploy it live.",
+    content:
+      "From wireframes to code, I keep every step focused on usability and performance. After development, I deploy with confidence, monitor results, and iterate based on feedback.",
     date: "Dec 2025",
   },
 ];
 
 const Blog = () => {
+  const [expandedIndex, setExpandedIndex] = useState(null);
+
+  const handleToggle = (index) => {
+    setExpandedIndex(expandedIndex === index ? null : index);
+  };
+
   return (
     <section id="blog" className="relative bg-black text-white py-24 overflow-hidden">
 
@@ -97,12 +114,13 @@ const Blog = () => {
                 overflow-hidden
                 transition-all duration-300
                 hover:border-white/20
+                h-full
               "
             >
               {/* Glass Shine */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-40" />
 
-              <div className="relative z-10">
+              <div className="relative z-10 flex h-full flex-col">
 
                 {/* Icon */}
                 <div className="text-white/80 mb-4">
@@ -120,15 +138,26 @@ const Blog = () => {
                 </h3>
 
                 {/* Description */}
-                <p className="text-gray-300 text-sm leading-6 mb-6">
+                <p className="text-gray-300 text-sm leading-6 mb-4">
                   {blog.description}
                 </p>
 
-                {/* Button */}
-                <button className="flex items-center gap-2 text-sm text-white/80 hover:text-white transition">
-                  Read More
-                  <ArrowUpRight size={16} />
-                </button>
+                {expandedIndex === index && (
+                  <p className="text-gray-200 text-sm leading-6 mb-4">
+                    {blog.content}
+                  </p>
+                )}
+
+                <div className="mt-auto">
+                  <button
+                    type="button"
+                    onClick={() => handleToggle(index)}
+                    className="flex items-center gap-2 text-sm text-white/80 hover:text-white transition"
+                  >
+                    {expandedIndex === index ? "Show Less" : "Read More"}
+                    <ArrowUpRight size={16} />
+                  </button>
+                </div>
 
               </div>
             </motion.div>
