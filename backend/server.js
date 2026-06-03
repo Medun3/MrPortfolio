@@ -1,4 +1,5 @@
 import { createServer } from "node:http";
+import nodemailer from "nodemailer"; // Ensure nodemailer is imported for transport creation
 import { config } from "./config/env.js";
 import { verifyContactEmailTransport } from "./models/contactModel.js";
 import { contactRoutes } from "./routes/contactRoutes.js";
@@ -44,6 +45,46 @@ const server = createServer(async (req, res) => {
 
   if (url.pathname === "/_smtp-check") {
     const token = req.headers["x-admin-token"] || url.searchParams.get("token");
+   
+   if (url.pathname === "/test-email") {
+  try {
+    const transport = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transport.sendMail({
+      from: process.env.EMAIL_USER,
+      to: process.env.EMAIL_USER,
+      subject: "Render Test Email",
+      text: "Testing email from Render",
+    });
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(
+      JSON.stringify({
+        success: true,
+        message: "Email sent successfully",
+      })
+    );
+  } catch (error) {
+    console.error("TEST EMAIL ERROR:", error);
+
+    res.writeHead(500, { "Content-Type": "application/json" });
+    res.end(
+      JSON.stringify({
+        success: false,
+        error: error.message,
+        code: error.code,
+      })
+    );
+  }
+
+  return;
+}
     if (token !== config.adminToken) {
       sendError(res, 401, "Unauthorized.");
       return;

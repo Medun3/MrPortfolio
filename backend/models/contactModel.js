@@ -57,18 +57,19 @@ const createMailTransport = ({ host, port, secure }) => {
 // });
 
 return nodemailer.createTransport({
-  // host: "smtp.gmail.com",
-  // port: 587,
+  host: "smtp.gmail.com",
+  port: 587,
   secure: false, // Must be false for 587
   
   // Crucial for Render network routing
-  // family: 4, 
+  family: 4, 
 
   // Timeouts (Increased to give Render enough time to route)
   connectionTimeout: 45000, 
   greetingTimeout: 45000,
   socketTimeout: 45000,
-
+  
+  service: "gmail",
   auth: {
     user: config.emailUser,
     pass: config.emailPass, // Make sure this is a 16-character App Password, NO spaces
@@ -76,8 +77,8 @@ return nodemailer.createTransport({
 
   tls: {
     // Keeps connection from dropping if Render's proxy interferes
-    // ciphers: 'SSLv3',
-    // rejectUnauthorized: false
+    ciphers: 'SSLv3',
+    rejectUnauthorized: false
   },
 });
 };
@@ -102,8 +103,8 @@ const createVerifiedMailTransport = async () => {
     const transport = createMailTransport(server);
 
     try {
-      // await transport.verify();
-      // console.log(`Gmail SMTP verified on ${server.host}:${server.port}`);
+      await transport.verify();
+      console.log(`Gmail SMTP verified on ${server.host}:${server.port}`);
       return transport;
     } catch (error) {
       lastError = error;
@@ -170,4 +171,3 @@ export const sendContactEmails = async ({ name, email, message }) => {
     logMailError("Contact auto-reply email skipped:", error);
   }
 };
-
