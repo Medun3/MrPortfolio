@@ -189,10 +189,20 @@ const createMailTransport = () => {
   }
 
   return nodemailer.createTransport({
-    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    requireTLS: true,
+    family: 4,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
     auth: {
       user: config.emailUser,
       pass: config.emailPass,
+    },
+    tls: {
+      rejectUnauthorized: true,
     },
   });
 };
@@ -253,6 +263,15 @@ export const sendContactEmails = async ({ name, email, message }) => {
         <p>${safeMessage}</p>
       `,
     });
+  } catch (error) {
+    logMailError("Contact owner email failed:", error);
+    throw new EmailSendError();
+  } finally {
+    transport.close();
+  }
+
+  try {
+    transport = await createVerifiedMailTransport();
 
     await transport.sendMail({
       from: `"Medun Raj" <${config.emailUser}>`,
@@ -271,10 +290,9 @@ Medun Raj`,
         <p>Regards,<br>Medun Raj</p>
       `,
     });
-
-    transport.close();
   } catch (error) {
-    logMailError("Email sending failed:", error);
-    throw new EmailSendError();
+    logMailError("Contact auto-reply email skipped:", error);
+  } finally {
+    transport?.close();
   }
 };

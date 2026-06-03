@@ -5,13 +5,16 @@ const defaultOrigins = [
   "http://127.0.0.1:4173",
   "https://mr-portfolio-sepia.vercel.app",
   "https://mr-portfolio-b7jycsx69-medunrajs-projects.vercel.app",
-  
 ];
 
-const envOrigins = (process.env.ALLOWED_ORIGINS || "").split(",").map((s) => s.trim()).filter(Boolean);
-const allowedOrigins = new Set([...defaultOrigins, ...envOrigins]);
-
 const normalizeOrigin = (origin) => origin?.replace(/\/+$/, "");
+
+const envOrigins = (process.env.ALLOWED_ORIGINS || "").split(",");
+const allowedOrigins = new Set(
+  [...defaultOrigins, ...envOrigins]
+    .map((origin) => normalizeOrigin(origin.trim()))
+    .filter(Boolean)
+);
 
 export const withCors = (req, res) => {
   const origin = normalizeOrigin(req.headers.origin);
