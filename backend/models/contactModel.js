@@ -62,7 +62,7 @@ return nodemailer.createTransport({
   secure: false, // Must be false for 587
   
   // Crucial for Render network routing
-  family: 4, 
+  // family: 4, 
 
   // Timeouts (Increased to give Render enough time to route)
   connectionTimeout: 45000, 
@@ -76,8 +76,8 @@ return nodemailer.createTransport({
 
   tls: {
     // Keeps connection from dropping if Render's proxy interferes
-    ciphers: 'SSLv3',
-    rejectUnauthorized: false
+    // ciphers: 'SSLv3',
+    // rejectUnauthorized: false
   },
 });
 };
