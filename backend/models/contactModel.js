@@ -183,20 +183,25 @@ const escapeHtml = (value) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
-const createMailTransport = () => {
+const mailServers = [
+  { host: "smtp.gmail.com", port: 465, secure: true },
+  { host: "smtp.gmail.com", port: 587, secure: false },
+];
+
+const createMailTransport = ({ host, port, secure }) => {
   if (!config.emailUser || !config.emailPass) {
     throw new EmailConfigError();
   }
 
   return nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    requireTLS: true,
+    host,
+    port,
+    secure,
+    requireTLS: !secure,
     family: 4,
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 30000,
     auth: {
       user: config.emailUser,
       pass: config.emailPass,
@@ -227,16 +232,22 @@ const withTimeout = (promise, timeoutMs, label) => {
 };
 
 const createVerifiedMailTransport = async () => {
-  const transport = createMailTransport();
+  let lastError;
 
-  try {
-    await transport.verify();
-    console.log("Gmail SMTP verified");
-    return transport;
-  } catch (error) {
-    logMailError("SMTP verification failed:", error);
-    throw error;
+  for (const server of mailServers) {
+    const transport = createMailTransport(server);
+
+    try {
+      await transport.verify();
+      console.log(`Gmail SMTP verified on ${server.host}:${server.port}`);
+      return transport;
+    } catch (error) {
+      lastError = error;
+      logMailError(`SMTP verification failed on ${server.host}:${server.port}:`, error);
+    }
   }
+
+  throw lastError || new Error("Gmail SMTP verification failed.");
 };
 
 export const verifyContactEmailTransport = async () => {
@@ -252,8 +263,11 @@ export const sendContactEmails = async ({ name, email, message }) => {
   let transport;
 
   try {
-    transport = createMailTransport();
+    transport = await createVerifiedMailTransport();
   } catch (error) {
+    if (error instanceof EmailConfigError) {
+      throw error;
+    }
     throw new EmailSendError();
   }
 
