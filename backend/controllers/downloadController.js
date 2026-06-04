@@ -10,10 +10,10 @@ export const downloadResume = async (_req, res) => {
   }
 
   const file = await getResumeFile(meta);
-  const fileName = meta.originalName.replaceAll('"', "");
-  res.setHeader("Content-Type", file.mimeType);
-  res.setHeader("Content-Length", file.size);
-  res.setHeader("Content-Disposition", `attachment; filename="${fileName}"; filename*=UTF-8''${encodeURIComponent(fileName)}`);
-  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.writeHead(200, {
+    "Content-Type": file.mimeType,
+    "Content-Length": file.size,
+    "Content-Disposition": `attachment; filename="${meta.originalName.replaceAll('"', "")}"`,
+  });
   createReadStream(file.filePath).pipe(res);
 };
