@@ -87,6 +87,7 @@ const ResumeCms = () => {
           {resume && (
             <a
               href={resumeDownloadUrl}
+              download="MedunrajM-JSE.pdf"
               className="inline-flex items-center justify-center gap-2 rounded-md bg-black px-5 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
             >
               <Download size={18} />

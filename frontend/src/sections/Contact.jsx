@@ -60,10 +60,10 @@ const Contact = () => {
 
         <h2 className="text-5xl font-bold mb-10">CONTACT</h2>
 
-        <div className="grid md:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
 
           {/* LEFT INFO */}
-          <div>
+          <div className="order-2 md:order-1">
             <h3 className="text-2xl font-semibold mb-4">
               Let’s Work Together 🚀
             </h3>
@@ -143,13 +143,12 @@ const Contact = () => {
           </div>
 
           {/* FORM */}
-           {/* FORM */}
           <form
             onSubmit={handleSubmit}
-            className="bg-white/60 backdrop-blur-md border border-gray-200 shadow-xl rounded-2xl p-8 space-y-5"
+            className="order-1 md:order-2 bg-white/60 backdrop-blur-md border border-gray-200 shadow-xl rounded-2xl p-6 sm:p-8 space-y-4 sm:space-y-5"
           >
 
-            <h3 className="text-xl font-semibold mb-2">
+            <h3 className="text-lg sm:text-xl font-semibold mb-4">
               Send a Message ✉️
             </h3>
 
@@ -160,7 +159,7 @@ const Contact = () => {
               value={formData.name}
               onChange={handleChange}
               placeholder="Your Name"
-              className="w-full p-4 rounded-xl border border-gray-300 focus:border-black focus:ring-2 focus:ring-black outline-none transition"
+              className="w-full p-3 sm:p-4 text-base rounded-xl border border-gray-300 focus:border-black focus:ring-2 focus:ring-black outline-none transition"
             />
 
             {/* EMAIL */}
@@ -170,7 +169,7 @@ const Contact = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Your Email"
-              className="w-full p-4 rounded-xl border border-gray-300 focus:border-black focus:ring-2 focus:ring-black outline-none transition"
+              className="w-full p-3 sm:p-4 text-base rounded-xl border border-gray-300 focus:border-black focus:ring-2 focus:ring-black outline-none transition"
             />
 
             {/* MESSAGE */}
@@ -180,21 +179,21 @@ const Contact = () => {
               value={formData.message}
               onChange={handleChange}
               placeholder="Your Message..."
-              className="w-full p-4 rounded-xl border border-gray-300 focus:border-black focus:ring-2 focus:ring-black outline-none transition"
+              className="w-full p-3 sm:p-4 text-base rounded-xl border border-gray-300 focus:border-black focus:ring-2 focus:ring-black outline-none transition resize-none"
             />
 
             {/* BUTTON */}
             <button
               type="submit"
               disabled={isSending}
-              className="w-full bg-black text-white py-4 rounded-xl font-semibold hover:bg-gray-800 active:scale-95 transition duration-300"
+              className="w-full bg-black text-white py-3 sm:py-4 px-4 text-base sm:text-lg rounded-xl font-semibold hover:bg-gray-800 active:scale-95 transition duration-300 disabled:opacity-70"
             >
               {isSending ? "Sending..." : "Send Message 🚀"}
             </button>
 
             {/* STATUS */}
             {status && (
-              <p className="text-sm text-gray-600 text-center">
+              <p className="text-xs sm:text-sm text-gray-600 text-center break-words">
                 {status}
               </p>
             )}

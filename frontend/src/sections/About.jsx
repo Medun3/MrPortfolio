@@ -118,7 +118,7 @@ const About = () => {
 
           <motion.a
             href={resumeDownloadUrl}
-            download
+            download="MedunrajM-JSE.pdf"
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.96 }}
             className="mt-8 inline-flex items-center justify-center gap-2 rounded-md bg-black px-7 py-3 font-semibold text-white transition hover:bg-gray-800"
