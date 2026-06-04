@@ -76,13 +76,29 @@ const Contact = () => {
 
             <div className="space-y-3 text-gray-800">
 
-              <p>📧 Email: <span className="font-medium">medunraj3@gmail.com</span></p>
+              <p>
+                📧 Email:{" "}
+                <a
+                  href="mailto:medunraj3@gmail.com"
+                  className="font-medium underline hover:text-black"
+                >
+                  medunraj3@gmail.com
+                </a>
+              </p>
 
-              <p>📱 Phone: <span className="font-medium">+91 8124089016</span></p>
+              <p>
+                📱 Phone:{" "}
+                <a
+                  href="tel:+918124089016"
+                  className="font-medium underline hover:text-black"
+                >
+                  +91 81240 89016
+                </a>
+              </p>
 
               <p>📍 Location: Puducherry, India</p>
 
-              <p>💼 Role: Junior Software Engineer </p>
+              <p>💼 Role: Junior Software Engineer</p>
 
               <p>⚡ Availability: Open to Freelance & Full-time Opportunities</p>
 
@@ -95,6 +111,7 @@ const Contact = () => {
                 <a
                   href="https://linkedin.com/in/medunraj3"
                   target="_blank"
+                  rel="noopener noreferrer"
                   className=" underline"
                 >
                   linkedin.com/in/medunraj3
@@ -106,6 +123,7 @@ const Contact = () => {
                 <a
                   href="https://github.com/Medun3"
                   target="_blank"
+                  rel="noopener noreferrer"
                   className="text-black underline"
                 >
                   https://github.com/Medun3

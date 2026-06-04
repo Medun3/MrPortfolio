@@ -1,4 +1,3 @@
-const defaultBaseUrl = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? "http://localhost:5000" : "https://mrportfolio.onrender.com");
-
-export const API_BASE_URL = defaultBaseUrl;
+const rawBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim().replace(/\/$/, "") || "";
+export const API_BASE_URL = import.meta.env.DEV && rawBaseUrl === "http://localhost:5000" ? "" : rawBaseUrl;
 export const resumeDownloadUrl = `${API_BASE_URL}/api/resume/download`;
