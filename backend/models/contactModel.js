@@ -194,13 +194,14 @@ const createMailTransport = ({ host, port, secure }) => {
   }
 
   return nodemailer.createTransport({
+    service: "gmail",
     host,
     port,
     secure,
     requireTLS: !secure,
     family: 4,
-    connectionTimeout: 15000,
-    greetingTimeout: 15000,
+    connectionTimeout: 30000,
+    greetingTimeout: 30000,
     socketTimeout: 30000,
     auth: {
       user: config.emailUser,

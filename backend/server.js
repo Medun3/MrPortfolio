@@ -43,50 +43,38 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  if (url.pathname === "/_smtp-check") {
+  if (url.pathname === "/_smtp-check" || url.pathname === "/test-email") {
     const token = req.headers["x-admin-token"] || url.searchParams.get("token");
-   
-   if (url.pathname === "/test-email") {
-  try {
-    const transport = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
 
-    await transport.sendMail({
-      from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER,
-      subject: "Render Test Email",
-      text: "Testing email from Render",
-    });
-
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(
-      JSON.stringify({
-        success: true,
-        message: "Email sent successfully",
-      })
-    );
-  } catch (error) {
-    console.error("TEST EMAIL ERROR:", error);
-
-    res.writeHead(500, { "Content-Type": "application/json" });
-    res.end(
-      JSON.stringify({
-        success: false,
-        error: error.message,
-        code: error.code,
-      })
-    );
-  }
-
-  return;
-}
     if (token !== config.adminToken) {
       sendError(res, 401, "Unauthorized.");
+      return;
+    }
+
+    if (url.pathname === "/test-email") {
+      try {
+        const transport = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+          },
+        });
+
+        await transport.sendMail({
+          from: process.env.EMAIL_USER,
+          to: process.env.EMAIL_USER,
+          subject: "Render Test Email",
+          text: "Testing email from Render",
+        });
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: true, message: "Email sent successfully" }));
+      } catch (error) {
+        console.error("TEST EMAIL ERROR:", error);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ success: false, error: error.message, code: error.code }));
+      }
       return;
     }
 
