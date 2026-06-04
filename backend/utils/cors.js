@@ -3,8 +3,10 @@ const defaultOrigins = [
   "http://127.0.0.1:5173",
   "http://localhost:4173",
   "http://127.0.0.1:4173",
-  "https://mr-portfolio-sepia.vercel.app",
-  "https://mr-portfolio-b7jycsx69-medunrajs-projects.vercel.app",
+  // "https://mr-portfolio-sepia.vercel.app",
+  // "https://mr-portfolio-b7jycsx69-medunrajs-projects.vercel.app",
+  "https://medunraj-portfolio.vercel.app",
+  "https://mr-portfolio-88r8benhy-medunrajs-projects.vercel.app",
 ];
 
 const normalizeOrigin = (origin) => origin?.replace(/\/+$/, "");
