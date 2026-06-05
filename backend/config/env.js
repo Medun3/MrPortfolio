@@ -31,15 +31,8 @@ loadEnv();
 const cleanEnvValue = (value) => String(value || "").trim();
 const cleanAppPassword = (value) => cleanEnvValue(value).replace(/\s+/g, "");
 
-const port = Number(process.env.PORT || 5000);
-if (process.env.NODE_ENV === "production" && process.env.PORT === "5000") {
-  console.warn(
-    "Warning: production PORT is set to 5000. Remove the PORT environment variable on Render so the platform can assign the correct port."
-  );
-}
-
 export const config = {
-  port,
+  port: Number(process.env.PORT || 5000),
   adminToken: cleanEnvValue(process.env.ADMIN_TOKEN) || "Medun@156",
   contactToEmail: cleanEnvValue(process.env.CONTACT_TO_EMAIL) || "medunraj3@gmail.com",
   emailUser: cleanEnvValue(process.env.EMAIL_USER),
