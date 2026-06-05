@@ -196,21 +196,20 @@ const createMailTransport = ({ host, port, secure }) => {
   }
 
   return nodemailer.createTransport({
-    service: "gmail",
-    host,
+    host: "smtp.gmail.com",
     port,
     secure,
-    requireTLS: !secure,
+    requireTLS: true,
     family: 4,
-    connectionTimeout: 30000,
-    greetingTimeout: 30000,
-    socketTimeout: 30000,
+    connectionTimeout: 45000,
+    greetingTimeout: 45000,
+    socketTimeout: 45000,
     auth: {
       user: config.emailUser,
       pass: config.emailPass,
     },
     tls: {
-      rejectUnauthorized: true,
+      rejectUnauthorized: false,
     },
   });
 };
