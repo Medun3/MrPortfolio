@@ -10,31 +10,20 @@ const escapeHtml = (value) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
-const mailServers = [
-  { host: "smtp.gmail.com", port: 465, secure: true },
-  { host: "smtp.gmail.com", port: 587, secure: false },
-];
-
-const createMailTransport = ({ host, port, secure }) => {
+const createMailTransport = () => {
   if (!config.emailUser || !config.emailPass) {
-    throw new EmailConfigError();
+    const error = new EmailConfigError();
+    console.error("❌ EMAIL CONFIG ERROR - Missing credentials");
+    console.error("   EMAIL_USER:", config.emailUser ? "✓ Set" : "✗ NOT SET");
+    console.error("   EMAIL_PASS:", config.emailPass ? "✓ Set" : "✗ NOT SET");
+    throw error;
   }
 
   return nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port,
-    secure,
-    requireTLS: true,
-    family: 4,
-    connectionTimeout: 45000,
-    greetingTimeout: 45000,
-    socketTimeout: 45000,
+    service: "gmail",
     auth: {
       user: config.emailUser,
       pass: config.emailPass,
-    },
-    tls: {
-      rejectUnauthorized: false,
     },
   });
 };
@@ -60,22 +49,19 @@ const withTimeout = (promise, timeoutMs, label) => {
 };
 
 const createVerifiedMailTransport = async () => {
-  let lastError;
-
-  for (const server of mailServers) {
-    const transport = createMailTransport(server);
-
-    try {
-      await transport.verify();
-      console.log(`Gmail SMTP verified on ${server.host}:${server.port}`);
-      return transport;
-    } catch (error) {
-      lastError = error;
-      logMailError(`SMTP verification failed on ${server.host}:${server.port}:`, error);
-    }
+  const transport = createMailTransport();
+  
+  try {
+    console.log("🔍 Verifying Gmail SMTP connection...");
+    await transport.verify();
+    console.log("✓ Gmail SMTP verified successfully");
+    return transport;
+  } catch (error) {
+    console.error("❌ Gmail SMTP verification failed:");
+    logMailError("SMTP Error", error);
+    transport.close();
+    throw error;
   }
-
-  throw lastError || new Error("Gmail SMTP verification failed.");
 };
 
 export const verifyContactEmailTransport = async () => {
@@ -90,26 +76,22 @@ export const sendContactEmails = async ({ name, email, message }) => {
 
   let transport;
 
-  // Log credentials status (without revealing actual values)
-  console.log("=== CONTACT EMAIL SEND ===");
-  console.log("Email User configured:", Boolean(config.emailUser));
-  console.log("Email Pass configured:", Boolean(config.emailPass));
-  console.log("Email User value:", config.emailUser || "NOT SET");
-  console.log("Contact To Email:", config.contactToEmail);
-  console.log("=============================");
+  // Log credentials status
+  console.log("\n📧 === CONTACT EMAIL SEND ===");
+  console.log("   Recipient Email:", email);
+  console.log("   Sender Email:", config.emailUser || "NOT SET");
+  console.log("   Password Length:", config.emailPass?.length || 0);
+  console.log("   =============================\n");
 
   try {
     transport = await createVerifiedMailTransport();
   } catch (error) {
-    console.error("TRANSPORT CREATION FAILED:", error.message || error);
-    if (error instanceof EmailConfigError) {
-      console.error("ERROR: Email credentials are missing!");
-      throw error;
-    }
+    console.error("❌ FAILED TO CREATE TRANSPORT:", error.message);
     throw new EmailSendError();
   }
 
   try {
+    console.log("📨 Sending message to admin...");
     await withTimeout(
       transport.sendMail({
         from: `"Portfolio Contact" <${config.emailUser}>`,
@@ -125,16 +107,19 @@ export const sendContactEmails = async ({ name, email, message }) => {
           <p>${safeMessage}</p>
         `,
       }),
-      12000,
-      "Contact owner email"
+      15000,
+      "Admin email"
     );
+    console.log("✓ Admin email sent successfully");
   } catch (error) {
-    logMailError("Contact owner email failed:", error);
-    transport.close();
+    console.error("❌ ADMIN EMAIL FAILED:", error.message);
+    logMailError("Contact owner email", error);
+    transport?.close();
     throw new EmailSendError();
   }
 
   try {
+    console.log("📨 Sending confirmation to user...");
     await withTimeout(
       transport.sendMail({
         from: `"Medun Raj" <${config.emailUser}>`,
@@ -153,12 +138,15 @@ Medun Raj`,
           <p>Regards,<br>Medun Raj</p>
         `,
       }),
-      8000,
-      "Contact auto-reply email"
+      10000,
+      "User confirmation email"
     );
+    console.log("✓ Confirmation email sent to user");
   } catch (error) {
-    logMailError("Contact auto-reply email skipped:", error);
+    console.error("⚠️  CONFIRMATION EMAIL FAILED (non-critical):", error.message);
+    logMailError("User confirmation email", error);
   } finally {
     transport?.close();
+    console.log("🔒 SMTP connection closed\n");
   }
 };
