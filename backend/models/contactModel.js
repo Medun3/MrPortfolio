@@ -10,35 +10,28 @@ const escapeHtml = (value) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
-export const createMailTransport = () => {
+const createMailTransport = () => {
   if (!config.emailUser || !config.emailPass) {
     throw new EmailConfigError();
   }
 
-  const transportOptions = {
+  return nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    requireTLS: true,
+    family: 4,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
     auth: {
       user: config.emailUser,
       pass: config.emailPass,
     },
-    connectionTimeout: 45000,
-    greetingTimeout: 45000,
-    socketTimeout: 45000,
     tls: {
-      rejectUnauthorized: false,
-      servername: config.emailHost,
+      rejectUnauthorized: true,
     },
-  };
-
-  if (config.emailService) {
-    transportOptions.service = config.emailService;
-  } else {
-    transportOptions.host = config.emailHost;
-    transportOptions.port = config.emailPort;
-    transportOptions.secure = config.emailSecure;
-    transportOptions.requireTLS = !config.emailSecure;
-  }
-
-  return nodemailer.createTransport(transportOptions);
+  });
 };
 
 const logMailError = (label, error) => {
@@ -64,15 +57,11 @@ const createVerifiedMailTransport = async () => {
   const transport = createMailTransport();
 
   try {
-    console.log(
-      `[EMAIL] Verifying SMTP transport ${config.emailService || config.emailHost}:${config.emailPort} secure=${config.emailSecure}`
-    );
     await transport.verify();
-    console.log("SMTP transport verified successfully.");
+    console.log("Gmail SMTP verified");
     return transport;
   } catch (error) {
     logMailError("SMTP verification failed:", error);
-    transport.close();
     throw error;
   }
 };
@@ -90,11 +79,8 @@ export const sendContactEmails = async ({ name, email, message }) => {
   let transport;
 
   try {
-    transport = await createVerifiedMailTransport();
+    transport = createMailTransport();
   } catch (error) {
-    if (error instanceof EmailConfigError) {
-      throw error;
-    }
     throw new EmailSendError();
   }
 
