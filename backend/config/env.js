@@ -37,8 +37,4 @@ export const config = {
   contactToEmail: cleanEnvValue(process.env.CONTACT_TO_EMAIL) || "medunraj3@gmail.com",
   emailUser: cleanEnvValue(process.env.EMAIL_USER),
   emailPass: cleanAppPassword(process.env.EMAIL_PASS),
-  emailService: cleanEnvValue(process.env.EMAIL_SERVICE),
-  emailHost: cleanEnvValue(process.env.EMAIL_HOST) || "smtp.gmail.com",
-  emailPort: Number(process.env.EMAIL_PORT || 587),
-  emailSecure: String(process.env.EMAIL_SECURE || "false").toLowerCase() === "true",
 };

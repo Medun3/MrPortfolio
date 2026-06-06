@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { contactUrl } from "../config/api";
+import { API_BASE_URL } from "../config/api";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -30,9 +30,7 @@ const Contact = () => {
       setIsSending(true);
       setStatus("Sending message...");
 
-      console.log("Sending to:", contactUrl);
-
-      const response = await fetch(contactUrl, {
+      const response = await fetch(`${API_BASE_URL}/api/contact`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -42,9 +40,6 @@ const Contact = () => {
 
       const data = await response.json();
 
-      console.log("Response status:", response.status);
-      console.log("Response data:", data);
-
       if (!response.ok) {
         throw new Error(data.message || "Unable to send message.");
       }
@@ -52,7 +47,6 @@ const Contact = () => {
       setStatus("Message sent successfully. Please check your email for confirmation.");
       setFormData({ name: "", email: "", message: "" });
     } catch (error) {
-      console.error("Contact form error:", error);
       setStatus(error.message || "Unable to send message. Please try again.");
     } finally {
       setIsSending(false);
