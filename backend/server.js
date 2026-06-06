@@ -5,7 +5,7 @@ import { verifyContactEmailTransport } from "./models/contactModel.js";
 import { contactRoutes } from "./routes/contactRoutes.js";
 import { downloadRoutes } from "./routes/downloadRoutes.js";
 import { resumeRoutes } from "./routes/resumeRoutes.js";
-import { withCors } from "./utils/cors.js";
+import { allowedOrigins, isAllowedOrigin, normalizeOrigin, withCors } from "./utils/cors.js";
 import { sendError } from "./utils/http.js";
 import dns from 'dns';
 dns.setDefaultResultOrder('ipv4first');
@@ -35,12 +35,28 @@ const server = createServer(async (req, res) => {
       status: "ok",
       port: config.port,
       emailConfigured: Boolean(config.emailUser && config.emailPass),
-      emailUser: config.emailUser || "NOT SET",
-      emailUserLength: config.emailUser?.length || 0,
-      emailPassLength: config.emailPass?.length || 0,
       nodeEnv: process.env.NODE_ENV || "development",
-      allowedOrigins: process.env.ALLOWED_ORIGINS || null,
+      allowedOriginsEnv: process.env.ALLOWED_ORIGINS || null,
+      allowedOrigins: Array.from(allowedOrigins),
     };
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(payload));
+    return;
+  }
+
+  if (url.pathname === "/cors-check") {
+    const originHeader = req.headers.origin || null;
+    const normalized = normalizeOrigin(originHeader);
+
+    const payload = {
+      status: "ok",
+      originHeader,
+      normalizedOrigin: normalized,
+      isAllowed: isAllowedOrigin(normalized),
+      allowedOrigins: Array.from(allowedOrigins),
+      allowedOriginsEnv: process.env.ALLOWED_ORIGINS || null,
+    };
+
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(payload));
     return;
@@ -135,5 +151,3 @@ console.log("Node env:", process.env.NODE_ENV || "development");
 console.log("Email user configured:", Boolean(config.emailUser));
 console.log("Email pass configured:", Boolean(config.emailPass));
 console.log("Allowed origins:", process.env.ALLOWED_ORIGINS || "(default list)");
-
-// (diagnostic endpoint handled above in main request handler)
