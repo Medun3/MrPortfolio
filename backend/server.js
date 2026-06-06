@@ -35,6 +35,9 @@ const server = createServer(async (req, res) => {
       status: "ok",
       port: config.port,
       emailConfigured: Boolean(config.emailUser && config.emailPass),
+      emailUser: config.emailUser || "NOT SET",
+      emailUserLength: config.emailUser?.length || 0,
+      emailPassLength: config.emailPass?.length || 0,
       nodeEnv: process.env.NODE_ENV || "development",
       allowedOrigins: process.env.ALLOWED_ORIGINS || null,
     };
