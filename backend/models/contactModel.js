@@ -10,36 +10,29 @@ const escapeHtml = (value) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
-const mailServers = [
-  { host: "smtp.gmail.com", port: 465, secure: true },
-  { host: "smtp.gmail.com", port: 587, secure: false },
-];
 
-const createMailTransport = ({ host, port, secure }) => {
+
+const createMailTransport = () => {
   if (!config.emailUser || !config.emailPass) {
     throw new EmailConfigError();
   }
 
   return nodemailer.createTransport({
-    service: "gmail",
-    host,
-    port,
-    secure,
-    requireTLS: !secure,
-    family: 4,
-    connectionTimeout: 30000,
-    greetingTimeout: 30000,
-    socketTimeout: 30000,
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
     auth: {
       user: config.emailUser,
       pass: config.emailPass,
     },
+    connectionTimeout: 60000,
+    greetingTimeout: 60000,
+    socketTimeout: 60000,
     tls: {
-      rejectUnauthorized: true,
+      rejectUnauthorized: false,
     },
   });
 };
-
 const logMailError = (label, error) => {
   console.error(label, {
     code: error.code,
@@ -60,23 +53,16 @@ const withTimeout = (promise, timeoutMs, label) => {
 };
 
 const createVerifiedMailTransport = async () => {
-  let lastError;
+  const transport = createMailTransport();
 
-  for (const server of mailServers) {
-    const transport = createMailTransport(server);
-
-    try {
-      await withTimeout(transport.verify(), 10000, `SMTP verification on ${server.host}`);
-      console.log(`Gmail SMTP verified on ${server.host}:${server.port}`);
-      return transport;
-    } catch (error) {
-      lastError = error;
-      logMailError(`SMTP verification failed on ${server.host}:${server.port}:`, error);
-      transport.close();
-    }
+  try {
+    await transport.verify();
+    console.log("SMTP verified successfully");
+    return transport;
+  } catch (error) {
+    logMailError("SMTP verification failed:", error);
+    throw error;
   }
-
-  throw lastError || new Error("Gmail SMTP verification failed.");
 };
 
 export const verifyContactEmailTransport = async () => {
