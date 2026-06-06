@@ -5,3 +5,4 @@ export const API_BASE_URL = import.meta.env.DEV
     : rawBaseUrl
   : rawBaseUrl || "https://mrportfolio.onrender.com";
 export const resumeDownloadUrl = `${API_BASE_URL}/api/resume/download`;
+export const contactUrl = `${API_BASE_URL}/api/contact`;
