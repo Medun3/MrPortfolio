@@ -23,12 +23,12 @@ const createMailTransport = ({ host, port, secure }) => {
   }
 
   return nodemailer.createTransport({
-    service: "gmail",
     host,
     port,
     secure,
     requireTLS: !secure,
     family: 4,
+    localAddress: "0.0.0.0",
     connectionTimeout: 45000,
     greetingTimeout: 45000,
     socketTimeout: 45000,
@@ -38,6 +38,7 @@ const createMailTransport = ({ host, port, secure }) => {
     },
     tls: {
       rejectUnauthorized: false,
+      servername: "smtp.gmail.com",
     },
   });
 };
