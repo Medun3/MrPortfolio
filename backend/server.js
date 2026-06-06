@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import nodemailer from "nodemailer"; // Ensure nodemailer is imported for transport creation
 import { config } from "./config/env.js";
-import { verifyContactEmailTransport } from "./models/contactModel.js";
+import { createMailTransport, verifyContactEmailTransport } from "./models/contactModel.js";
 import { contactRoutes } from "./routes/contactRoutes.js";
 import { downloadRoutes } from "./routes/downloadRoutes.js";
 import { resumeRoutes } from "./routes/resumeRoutes.js";
@@ -72,20 +72,16 @@ const server = createServer(async (req, res) => {
 
     if (url.pathname === "/test-email") {
       try {
-        const transport = nodemailer.createTransport({
-          service: "gmail",
-          auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-          },
-        });
+        const transport = createMailTransport();
 
         await transport.sendMail({
-          from: process.env.EMAIL_USER,
-          to: process.env.EMAIL_USER,
+          from: config.emailUser,
+          to: config.emailUser,
           subject: "Render Test Email",
           text: "Testing email from Render",
         });
+
+        transport.close();
 
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ success: true, message: "Email sent successfully" }));
