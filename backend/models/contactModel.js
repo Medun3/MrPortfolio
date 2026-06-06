@@ -28,7 +28,6 @@ const createMailTransport = ({ host, port, secure }) => {
     secure,
     requireTLS: !secure,
     family: 4,
-    localAddress: "0.0.0.0",
     connectionTimeout: 45000,
     greetingTimeout: 45000,
     socketTimeout: 45000,
