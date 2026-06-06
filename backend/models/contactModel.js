@@ -11,8 +11,10 @@ const escapeHtml = (value) =>
     .replaceAll("'", "&#039;");
 
 const mailServers = [
-  { host: "smtp.gmail.com", port: 465, secure: true },
+  // Prefer STARTTLS (port 587) first – more reliable behind Render proxies.
   { host: "smtp.gmail.com", port: 587, secure: false },
+  // Retain SMTPS (port 465) as a fallback if needed.
+  { host: "smtp.gmail.com", port: 465, secure: true },
 ];
 
 const createMailTransport = ({ host, port, secure }) => {
@@ -66,6 +68,7 @@ const createVerifiedMailTransport = async () => {
     const transport = createMailTransport(server);
 
     try {
+      console.log(`[EMAIL] Attempting SMTP verify ${server.host}:${server.port} secure=${server.secure}`);
       await transport.verify();
       console.log(`Gmail SMTP verified on ${server.host}:${server.port}`);
       return transport;
