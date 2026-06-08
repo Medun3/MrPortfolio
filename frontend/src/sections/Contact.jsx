@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { API_BASE_URL } from "../config/api";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -9,7 +8,6 @@ const Contact = () => {
   });
 
   const [status, setStatus] = useState("");
-  const [isSending, setIsSending] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -18,50 +16,53 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = (e) => {
+  e.preventDefault();
 
-    if (!formData.name || !formData.email || !formData.message) {
-      setStatus("Please fill all fields");
-      return;
-    }
+  if (!formData.name.trim() || !formData.message.trim()) {
+    setStatus("Please fill in your name and message.");
+    return;
+  }
 
-    try {
-      setIsSending(true);
-      setStatus("Sending message...");
+  const phoneNumber = "918124089016";
 
-      const response = await fetch(`${API_BASE_URL}/api/contact`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+  const whatsappMessage = `Hello Medunraj,
 
-      const data = await response.json();
+Name: ${formData.name}
+Email: ${formData.email || "Not Provided"}
 
-      if (!response.ok) {
-        throw new Error(data.message || "Unable to send message.");
-      }
+Message:
+${formData.message}`;
 
-      setStatus("Message sent successfully. Please check your email for confirmation.");
-      setFormData({ name: "", email: "", message: "" });
-    } catch (error) {
-      setStatus(error.message || "Unable to send message. Please try again.");
-    } finally {
-      setIsSending(false);
-    }
-  };
+  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+    whatsappMessage
+  )}`;
+
+  const newWindow = window.open(whatsappUrl, "_blank");
+
+  if (newWindow) {
+    setStatus("WhatsApp opened successfully.");
+  } else {
+    setStatus("Popup blocked. Please allow popups and try again.");
+  }
+
+  setTimeout(() => {
+    setStatus("");
+  }, 3000);
+
+  setFormData({
+    name: "",
+    email: "",
+    message: "",
+  });
+};
 
   return (
     <section id="contact" className="bg-gray-100 py-24">
       <div className="max-w-7xl mx-auto px-5">
-
-
         <h2 className="text-5xl font-bold mb-10">CONTACT</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-
           {/* LEFT INFO */}
           <div className="order-2 md:order-1">
             <h3 className="text-2xl font-semibold mb-4">
@@ -75,7 +76,6 @@ const Contact = () => {
             </p>
 
             <div className="space-y-3 text-gray-800">
-
               <p>
                 📧 Email:{" "}
                 <a
@@ -100,8 +100,9 @@ const Contact = () => {
 
               <p>💼 Role: Junior Software Engineer</p>
 
-              <p>⚡ Availability: Open to Freelance & Full-time Opportunities</p>
-
+              <p>
+                ⚡ Availability: Open to Freelance & Full-time Opportunities
+              </p>
             </div>
 
             {/* SOCIAL LINKS */}
@@ -112,7 +113,7 @@ const Contact = () => {
                   href="https://linkedin.com/in/medunraj3"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className=" underline"
+                  className="underline"
                 >
                   linkedin.com/in/medunraj3
                 </a>
@@ -124,82 +125,80 @@ const Contact = () => {
                   href="https://github.com/Medun3"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-black underline"
+                  className="underline"
                 >
-                  https://github.com/Medun3
+                  github.com/Medun3
                 </a>
               </p>
 
               <p>
                 🌐 Portfolio:{" "}
-                <span className="text-gray-600">https://medunraj-portfolio.vercel.app/</span>
+                <a
+                  href="https://medunraj-portfolio.vercel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  medunraj-portfolio.vercel.app
+                </a>
               </p>
             </div>
 
             <p className="mt-6 text-gray-600 text-sm">
-              I usually respond within 24 hours. Feel free to reach out for
-              collaboration, projects, or job opportunities.
+              Feel free to contact me through WhatsApp, LinkedIn, or Email for
+              projects, collaborations, and job opportunities.
             </p>
           </div>
 
-          {/* FORM */}
+          {/* WHATSAPP FORM */}
           <form
             onSubmit={handleSubmit}
             className="order-1 md:order-2 bg-white/60 backdrop-blur-md border border-gray-200 shadow-xl rounded-2xl p-6 sm:p-8 space-y-4 sm:space-y-5"
           >
-
             <h3 className="text-lg sm:text-xl font-semibold mb-4">
-              Send a Message ✉️
+              Send a WhatsApp Message 💬
             </h3>
 
-            {/* NAME */}
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
               placeholder="Your Name"
-              className="w-full p-3 sm:p-4 text-base rounded-xl border border-gray-300 focus:border-black focus:ring-2 focus:ring-black outline-none transition"
+              className="w-full p-3 sm:p-4 rounded-xl border border-gray-300 focus:border-green-600 focus:ring-2 focus:ring-green-600 outline-none transition"
             />
 
-            {/* EMAIL */}
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="Your Email"
-              className="w-full p-3 sm:p-4 text-base rounded-xl border border-gray-300 focus:border-black focus:ring-2 focus:ring-black outline-none transition"
+              placeholder="Your Email (Optional)"
+              className="w-full p-3 sm:p-4 rounded-xl border border-gray-300 focus:border-green-600 focus:ring-2 focus:ring-green-600 outline-none transition"
             />
 
-            {/* MESSAGE */}
             <textarea
               rows="5"
               name="message"
               value={formData.message}
               onChange={handleChange}
-              placeholder="Your Message..."
-              className="w-full p-3 sm:p-4 text-base rounded-xl border border-gray-300 focus:border-black focus:ring-2 focus:ring-black outline-none transition resize-none"
+              placeholder="Type your message..."
+              className="w-full p-3 sm:p-4 rounded-xl border border-gray-300 focus:border-green-600 focus:ring-2 focus:ring-green-600 outline-none transition resize-none"
             />
 
-            {/* BUTTON */}
             <button
               type="submit"
-              disabled={isSending}
-              className="w-full bg-black text-white py-3 sm:py-4 px-4 text-base sm:text-lg rounded-xl font-semibold hover:bg-gray-800 active:scale-95 transition duration-300 disabled:opacity-70"
+              className="w-full bg-green-600 text-white py-3 sm:py-4 px-4 text-base sm:text-lg rounded-xl font-semibold hover:bg-green-700 active:scale-95 transition duration-300"
             >
-              {isSending ? "Sending..." : "Send Message 🚀"}
+              Send via WhatsApp 💬
             </button>
 
-            {/* STATUS */}
             {status && (
-              <p className="text-xs sm:text-sm text-gray-600 text-center break-words">
+              <p className="text-sm text-center text-gray-600">
                 {status}
               </p>
             )}
-
           </form>
-
         </div>
       </div>
     </section>
