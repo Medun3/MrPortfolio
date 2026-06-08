@@ -19,26 +19,19 @@ const createMailTransport = () => {
     throw new EmailConfigError();
   }
 
-  return nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-
-    family: 4, // Force IPv4
-
-    auth: {
-      user: config.emailUser,
-      pass: config.emailPass,
-    },
-
-    connectionTimeout: 60000,
-    greetingTimeout: 60000,
-    socketTimeout: 60000,
-
-    tls: {
-      rejectUnauthorized: false,
-    },
-  });
+return nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  family: 4,
+  auth: {
+    user: config.emailUser,
+    pass: config.emailPass,
+  },
+  connectionTimeout: 60000,
+  greetingTimeout: 60000,
+  socketTimeout: 60000,
+});
 };
 const logMailError = (label, error) => {
   console.error(label, {
