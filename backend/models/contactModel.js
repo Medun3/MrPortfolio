@@ -12,6 +12,8 @@ const escapeHtml = (value) =>
 
 
 
+import nodemailer from "nodemailer";
+
 const createMailTransport = () => {
   if (!config.emailUser || !config.emailPass) {
     throw new EmailConfigError();
@@ -21,13 +23,18 @@ const createMailTransport = () => {
     host: "smtp.gmail.com",
     port: 587,
     secure: false,
+
+    family: 4, // Force IPv4
+
     auth: {
       user: config.emailUser,
       pass: config.emailPass,
     },
+
     connectionTimeout: 60000,
     greetingTimeout: 60000,
     socketTimeout: 60000,
+
     tls: {
       rejectUnauthorized: false,
     },
