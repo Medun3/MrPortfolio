@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
-import { HiOutlineMenuAlt3 } from "react-icons/hi"
-import logo from "../assets/logo.png"
+import { useEffect, useState, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { HiOutlineMenuAlt3 } from "react-icons/hi";
+import logo from "../assets/logo.png";
 
 const navLinks = [
   { label: "Home", href: "#hero" },
@@ -13,39 +13,63 @@ const navLinks = [
 ];
 
 const Navbar = () => {
-  const [open, setOpen] = useState(false)
-  const location = useLocation()
-  const navigate = useNavigate()
+  const [open, setOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const menuRef = useRef(null);
 
-  const closeMenu = () => setOpen(false)
+  const closeMenu = () => setOpen(false);
 
   useEffect(() => {
-    if (!location.hash) return
+    if (!location.hash) return;
 
     const scrollTimer = window.setTimeout(() => {
-      const section = document.querySelector(location.hash)
-      section?.scrollIntoView({ behavior: "smooth", block: "start" })
-    }, 100)
+      const section = document.querySelector(location.hash);
+      section?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 100);
 
-    return () => window.clearTimeout(scrollTimer)
-  }, [location.pathname, location.hash])
+    return () => window.clearTimeout(scrollTimer);
+  }, [location.pathname, location.hash]);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleAnchorClick = (event, href) => {
-    event.preventDefault()
-    closeMenu()
+    event.preventDefault();
+    closeMenu();
 
     if (location.pathname !== "/") {
-      navigate(`/${href}`)
-      return
+      navigate(`/${href}`);
+      return;
     }
 
-    const section = document.querySelector(href)
-    section?.scrollIntoView({ behavior: "smooth", block: "start" })
-    navigate(href)
-  }
+    const section = document.querySelector(href);
+    section?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+
+    navigate(href);
+  };
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 px-10 py-0 flex justify-between items-center text-white bg-black/10 backdrop-blur-sm">
+      {/* Logo */}
       <a
         href="#hero"
         onClick={(event) => handleAnchorClick(event, "#hero")}
@@ -54,12 +78,14 @@ const Navbar = () => {
         <img src={logo} alt="Logo" className="h-20 w-auto" />
       </a>
 
+      {/* Desktop Menu */}
       <ul className="hidden md:flex gap-10 uppercase text-sm tracking-[3px]">
         {navLinks.map((link) => (
           <li key={link.href}>
             <a
               href={link.href}
               onClick={(event) => handleAnchorClick(event, link.href)}
+              className="hover:text-gray-300 transition"
             >
               {link.label}
             </a>
@@ -67,32 +93,37 @@ const Navbar = () => {
         ))}
       </ul>
 
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="text-4xl md:hidden"
-        aria-label={open ? "Close menu" : "Open menu"}
-        aria-expanded={open}
-      >
-        <HiOutlineMenuAlt3 />
-      </button>
+      {/* Mobile Menu Wrapper */}
+      <div ref={menuRef} className="relative md:hidden">
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className="text-4xl"
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+        >
+          <HiOutlineMenuAlt3 />
+        </button>
 
-      {open && (
-        <ul className="absolute top-full left-0 w-full bg-black/90 text-white flex flex-col items-center gap-6 py-8 uppercase text-sm tracking-[3px] md:hidden">
-          {navLinks.map((link) => (
-            <li key={link.href}>
-              <a
-                href={link.href}
-                onClick={(event) => handleAnchorClick(event, link.href)}
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
+        {/* Mobile Menu */}
+        {open && (
+          <ul className="absolute top-full right-0 mt-2 w-64 bg-black/95 backdrop-blur-md text-white flex flex-col items-center gap-6 py-8 rounded-lg shadow-lg uppercase text-sm tracking-[3px]">
+            {navLinks.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  onClick={(event) => handleAnchorClick(event, link.href)}
+                  className="hover:text-gray-300 transition"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

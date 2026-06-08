@@ -43,7 +43,7 @@ const Footer = () => {
               Back to Top <TiArrowUp size={25}/>
             </a>
             <a
-              href="https://github.com/medunraj"
+              href="https://github.com/Medun3"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-white transition duration-300"
@@ -51,7 +51,7 @@ const Footer = () => {
               GitHub
             </a>
             <a
-              href="https://www.linkedin.com/in/medunraj/"
+              href="https://www.linkedin.com/in/medunraj3"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-white transition duration-300"
