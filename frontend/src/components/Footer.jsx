@@ -36,12 +36,7 @@ const Footer = () => {
           <p>© 2026 Medunraj. All Rights Reserved.</p>
 
           <div className="flex items-center gap-4">
-            <a
-              href="#hero"
-              className="hover:text-white transition duration-300 flex items-center gap-1"
-            >
-              Back to Top <TiArrowUp size={25}/>
-            </a>
+      
             <a
               href="https://github.com/medunraj"
               target="_blank"
@@ -58,7 +53,13 @@ const Footer = () => {
             >
               LinkedIn
             </a>
-
+            
+                  <a
+              href="#hero"
+              className="hover:text-white transition duration-300 flex items-center gap-1"
+            >
+              Back to Top <TiArrowUp size={25}/>
+            </a>
           </div>
 
         </div>

@@ -129,11 +129,11 @@ const Contact = () => {
                   https://github.com/Medun3
                 </a>
               </p>
-{/* 
+
               <p>
                 🌐 Portfolio:{" "}
-                <span className="text-gray-600">your-portfolio.com</span>
-              </p> */}
+                <span className="text-gray-600">https://medunraj-portfolio.vercel.app/</span>
+              </p>
             </div>
 
             <p className="mt-6 text-gray-600 text-sm">

@@ -1,5 +1,7 @@
 import { createServer } from "node:http";
-import nodemailer from "nodemailer"; // Ensure nodemailer is imported for transport creation
+import dns from "node:dns";
+import nodemailer from "nodemailer";
+
 import { config } from "./config/env.js";
 import { verifyContactEmailTransport } from "./models/contactModel.js";
 import { contactRoutes } from "./routes/contactRoutes.js";
@@ -7,9 +9,14 @@ import { downloadRoutes } from "./routes/downloadRoutes.js";
 import { resumeRoutes } from "./routes/resumeRoutes.js";
 import { withCors } from "./utils/cors.js";
 import { sendError } from "./utils/http.js";
-import dns from 'dns';
-dns.setDefaultResultOrder('ipv4first');
-const routes = [contactRoutes, downloadRoutes, resumeRoutes];
+
+dns.setDefaultResultOrder("ipv4first");
+
+const routes = [
+  contactRoutes,
+  downloadRoutes,
+  resumeRoutes,
+];
 
 const server = createServer(async (req, res) => {
   withCors(req, res);
@@ -22,115 +29,237 @@ const server = createServer(async (req, res) => {
 
   const url = new URL(req.url, `http://${req.headers.host}`);
 
-  // Health check endpoint for probes and easy diagnostics
+  // =========================
+  // HEALTH CHECK
+  // =========================
   if (url.pathname === "/health") {
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ status: "ok" }));
+    res.writeHead(200, {
+      "Content-Type": "application/json",
+    });
+
+    res.end(
+      JSON.stringify({
+        success: true,
+        status: "ok",
+        timestamp: new Date().toISOString(),
+      })
+    );
+
     return;
   }
 
-  // Diagnostic endpoint (non-secret): returns status of key config flags
+  // =========================
+  // CONFIG DIAGNOSTICS
+  // =========================
   if (url.pathname === "/_diag") {
-    const payload = {
-      status: "ok",
-      port: config.port,
-      emailConfigured: Boolean(config.emailUser && config.emailPass),
-      nodeEnv: process.env.NODE_ENV || "development",
-      allowedOrigins: process.env.ALLOWED_ORIGINS || null,
-    };
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(payload));
+    res.writeHead(200, {
+      "Content-Type": "application/json",
+    });
+
+    res.end(
+      JSON.stringify({
+        status: "ok",
+        nodeEnv: process.env.NODE_ENV || "development",
+        port: config.port,
+        emailConfigured: Boolean(
+          config.emailUser && config.emailPass
+        ),
+        emailUser: config.emailUser
+          ? `${config.emailUser.substring(0, 4)}***`
+          : null,
+        allowedOrigins:
+          process.env.ALLOWED_ORIGINS || null,
+      })
+    );
+
     return;
   }
 
-  if (url.pathname === "/_smtp-check" || url.pathname === "/test-email") {
-    const token = req.headers["x-admin-token"] || url.searchParams.get("token");
+  // =========================
+  // SMTP VERIFY
+  // =========================
+  if (url.pathname === "/_smtp-check") {
+    const token =
+      req.headers["x-admin-token"] ||
+      url.searchParams.get("token");
 
     if (token !== config.adminToken) {
-      sendError(res, 401, "Unauthorized.");
-      return;
-    }
-
-    if (url.pathname === "/test-email") {
-      try {
-        const transport = nodemailer.createTransport({
-          service: "gmail",
-          auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-          },
-        });
-
-        await transport.sendMail({
-          from: process.env.EMAIL_USER,
-          to: process.env.EMAIL_USER,
-          subject: "Render Test Email",
-          text: "Testing email from Render",
-        });
-
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ success: true, message: "Email sent successfully" }));
-      } catch (error) {
-        console.error("TEST EMAIL ERROR:", error);
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ success: false, error: error.message, code: error.code }));
-      }
+      sendError(res, 401, "Unauthorized");
       return;
     }
 
     try {
       await verifyContactEmailTransport();
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ status: "ok", message: "Gmail SMTP verified." }));
+
+      res.writeHead(200, {
+        "Content-Type": "application/json",
+      });
+
+      res.end(
+        JSON.stringify({
+          success: true,
+          message: "SMTP verified successfully",
+        })
+      );
     } catch (error) {
-      console.error("SMTP diagnostic failed:", error);
-      sendError(res, error.statusCode || 502, error.message || "Gmail SMTP verification failed.");
+      console.error("SMTP VERIFY ERROR:", error);
+
+      sendError(
+        res,
+        502,
+        error.message || "SMTP verification failed"
+      );
     }
+
     return;
   }
 
+  // =========================
+  // SEND TEST EMAIL
+  // =========================
+  if (url.pathname === "/test-email") {
+    const token =
+      req.headers["x-admin-token"] ||
+      url.searchParams.get("token");
+
+    if (token !== config.adminToken) {
+      sendError(res, 401, "Unauthorized");
+      return;
+    }
+
+    try {
+      const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: {
+          user: config.emailUser,
+          pass: config.emailPass,
+        },
+        connectionTimeout: 30000,
+        greetingTimeout: 30000,
+        socketTimeout: 30000,
+      });
+
+      await transporter.verify();
+
+      const info = await transporter.sendMail({
+        from: `"Portfolio Contact" <${config.emailUser}>`,
+        to: config.emailUser,
+        subject: "Portfolio SMTP Test",
+        html: `
+          <h2>SMTP Test Successful</h2>
+          <p>Your backend is successfully connected to Gmail SMTP.</p>
+          <p>Time: ${new Date().toLocaleString()}</p>
+        `,
+      });
+
+      res.writeHead(200, {
+        "Content-Type": "application/json",
+      });
+
+      res.end(
+        JSON.stringify({
+          success: true,
+          message: "Test email sent successfully",
+          messageId: info.messageId,
+        })
+      );
+    } catch (error) {
+      console.error("TEST EMAIL ERROR:", error);
+
+      res.writeHead(500, {
+        "Content-Type": "application/json",
+      });
+
+      res.end(
+        JSON.stringify({
+          success: false,
+          error: error.message,
+          code: error.code,
+        })
+      );
+    }
+
+    return;
+  }
+
+  // =========================
+  // APPLICATION ROUTES
+  // =========================
   try {
     for (const route of routes) {
       const handled = await route(req, res, url);
-      if (handled) return;
+
+      if (handled) {
+        return;
+      }
     }
 
-    sendError(res, 404, "Route not found.");
+    sendError(res, 404, "Route not found");
   } catch (error) {
-    // Log full error for debugging and return safe message to client
-    console.error("Unhandled server error:", error);
-    sendError(res, error.statusCode || 500, error.message || "Server error.");
+    console.error("SERVER ERROR:", error);
+
+    sendError(
+      res,
+      error.statusCode || 500,
+      error.message || "Internal server error"
+    );
   }
 });
 
-// Global process handlers to surface unexpected crashes during startup/runtime
-process.on("uncaughtException", (err) => {
-  console.error("Uncaught exception:", err);
-  process.exit(1);
+// =========================
+// PROCESS ERROR HANDLERS
+// =========================
+
+process.on("uncaughtException", (error) => {
+  console.error("UNCAUGHT EXCEPTION:", error);
 });
 
 process.on("unhandledRejection", (reason) => {
-  console.error("Unhandled rejection:", reason);
+  console.error("UNHANDLED REJECTION:", reason);
 });
+
+// =========================
+// SERVER ERROR HANDLER
+// =========================
 
 server.on("error", (error) => {
   if (error.code === "EADDRINUSE") {
-    console.error(`Port ${config.port} is already in use. Stop the existing backend or set a different PORT.`);
-    console.error(`Find the process on Windows: netstat -ano | findstr :${config.port}`);
+    console.error(
+      `Port ${config.port} is already in use`
+    );
   } else {
-    console.error("Server failed to start:", error);
+    console.error("SERVER START ERROR:", error);
   }
+
   process.exit(1);
 });
 
-server.listen(config.port, () => {
-  console.log(`Portfolio backend running on http://localhost:${config.port}`);
+// =========================
+// START SERVER
+// =========================
+
+server.listen(config.port, async () => {
+  console.log(
+    `🚀 Portfolio backend running on port ${config.port}`
+  );
+
+  console.log(
+    "Email user configured:",
+    Boolean(config.emailUser)
+  );
+
+  console.log(
+    "Email password configured:",
+    Boolean(config.emailPass)
+  );
+
+  try {
+    await verifyContactEmailTransport();
+    console.log("✅ Gmail SMTP verified");
+  } catch (error) {
+    console.error("❌ Gmail SMTP verification failed");
+    console.error(error.message);
+  }
 });
-
-// Startup diagnostics (do not log secrets)
-console.log("Node env:", process.env.NODE_ENV || "development");
-console.log("Email user configured:", Boolean(config.emailUser));
-console.log("Email pass configured:", Boolean(config.emailPass));
-console.log("Allowed origins:", process.env.ALLOWED_ORIGINS || "(default list)");
-
-// (diagnostic endpoint handled above in main request handler)
