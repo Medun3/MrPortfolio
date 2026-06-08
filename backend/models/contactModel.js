@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+// import nodemailer from "";
 import { config } from "../config/env.js";
 import { EmailConfigError, EmailSendError } from "../utils/errors.js";
 
@@ -10,16 +10,12 @@ const escapeHtml = (value) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
-
-
-import nodemailer from "nodemailer";
-
 const createMailTransport = () => {
   if (!config.emailUser || !config.emailPass) {
     throw new EmailConfigError();
   }
 
-return nodemailer.createTransport({
+return sendMail.createTransport({
   host: "smtp.gmail.com",
   port: 465,
   secure: true,

@@ -2,7 +2,7 @@ import { sendError } from "./utils/http.js";
 import dns from 'dns';
 import http from "http";
 import { createServer } from "node:http";
-import nodemailer from "nodemailer"; // Ensure nodemailer is imported for transport creation
+// import nodemailer from "nodemailer"; // Ensure nodemailer is imported for transport creation
 import { config } from "./config/env.js";
 import { verifyContactEmailTransport } from "./models/contactModel.js";
 import { contactRoutes } from "./routes/contactRoutes.js";
@@ -55,7 +55,7 @@ const server = createServer(async (req, res) => {
 
     if (url.pathname === "/test-email") {
       try {
-        const transport = nodemailer.createTransport({
+        const transport = sendMail.createTransport({
           service: "gmail",
           auth: {
             user: process.env.EMAIL_USER,

@@ -37,4 +37,5 @@ export const config = {
   contactToEmail: cleanEnvValue(process.env.CONTACT_TO_EMAIL) || "medunraj3@gmail.com",
   emailUser: cleanEnvValue(process.env.EMAIL_USER),
   emailPass: cleanAppPassword(process.env.EMAIL_PASS),
+  brevoApiKey: process.env.BREVO_API_KEY,
 };
