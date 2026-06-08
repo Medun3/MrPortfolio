@@ -1,6 +1,5 @@
 import { sendContactEmails } from "../models/contactModel.js";
 import { getJsonBody, sendError, sendJson } from "../utils/http.js";
-import { EmailConfigError, EmailSendError } from "../utils/errors.js";
 
 export const sendMessage = async (req, res) => {
   const contentType = req.headers["content-type"] || "";
@@ -25,21 +24,11 @@ export const sendMessage = async (req, res) => {
     return;
   }
 
-  try {
-    await sendContactEmails({
-      name: trimmedName,
-      email: trimmedEmail,
-      message: trimmedMessage,
-    });
-    sendJson(res, 200, { message: "Message sent successfully." });
-  } catch (error) {
-    console.error("Contact email error:", error.message, error.name);
-    if (error instanceof EmailConfigError) {
-      sendError(res, error.statusCode, error.message);
-    } else if (error instanceof EmailSendError) {
-      sendError(res, error.statusCode, error.message);
-    } else {
-      sendError(res, 500, "Failed to process contact message. Please try again later.");
-    }
-  }
+  await sendContactEmails({
+    name: trimmedName,
+    email: trimmedEmail,
+    message: trimmedMessage,
+  });
+
+  sendJson(res, 200, { message: "Message sent successfully." });
 };

@@ -1,15 +1,13 @@
-import { sendError } from "./utils/http.js";
-import dns from 'dns';
-import http from "http";
 import { createServer } from "node:http";
-// import nodemailer from "nodemailer"; // Ensure nodemailer is imported for transport creation
+import nodemailer from "nodemailer"; // Ensure nodemailer is imported for transport creation
 import { config } from "./config/env.js";
 import { verifyContactEmailTransport } from "./models/contactModel.js";
 import { contactRoutes } from "./routes/contactRoutes.js";
 import { downloadRoutes } from "./routes/downloadRoutes.js";
 import { resumeRoutes } from "./routes/resumeRoutes.js";
 import { withCors } from "./utils/cors.js";
-
+import { sendError } from "./utils/http.js";
+import dns from 'dns';
 dns.setDefaultResultOrder('ipv4first');
 const routes = [contactRoutes, downloadRoutes, resumeRoutes];
 
@@ -55,7 +53,7 @@ const server = createServer(async (req, res) => {
 
     if (url.pathname === "/test-email") {
       try {
-        const transport = sendMail.createTransport({
+        const transport = nodemailer.createTransport({
           service: "gmail",
           auth: {
             user: process.env.EMAIL_USER,

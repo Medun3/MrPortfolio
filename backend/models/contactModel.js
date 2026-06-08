@@ -1,4 +1,4 @@
-// import nodemailer from "";
+import nodemailer from "nodemailer";
 import { config } from "../config/env.js";
 import { EmailConfigError, EmailSendError } from "../utils/errors.js";
 
@@ -10,25 +10,36 @@ const escapeHtml = (value) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
-const createMailTransport = () => {
+const mailServers = [
+  { host: "smtp.gmail.com", port: 465, secure: true },
+  { host: "smtp.gmail.com", port: 587, secure: false },
+];
+
+const createMailTransport = ({ host, port, secure }) => {
   if (!config.emailUser || !config.emailPass) {
     throw new EmailConfigError();
   }
 
-return sendMail.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  family: 4,
-  auth: {
-    user: config.emailUser,
-    pass: config.emailPass,
-  },
-  connectionTimeout: 60000,
-  greetingTimeout: 60000,
-  socketTimeout: 60000,
-});
+  return nodemailer.createTransport({
+    service: "gmail",
+    host,
+    port,
+    secure,
+    requireTLS: !secure,
+    family: 4,
+    connectionTimeout: 30000,
+    greetingTimeout: 30000,
+    socketTimeout: 30000,
+    auth: {
+      user: config.emailUser,
+      pass: config.emailPass,
+    },
+    tls: {
+      rejectUnauthorized: true,
+    },
+  });
 };
+
 const logMailError = (label, error) => {
   console.error(label, {
     code: error.code,
@@ -49,16 +60,22 @@ const withTimeout = (promise, timeoutMs, label) => {
 };
 
 const createVerifiedMailTransport = async () => {
-  const transport = createMailTransport();
+  let lastError;
 
-  try {
-    await transport.verify();
-    console.log("SMTP verified successfully");
-    return transport;
-  } catch (error) {
-    logMailError("SMTP verification failed:", error);
-    throw error;
+  for (const server of mailServers) {
+    const transport = createMailTransport(server);
+
+    try {
+      await transport.verify();
+      console.log(`Gmail SMTP verified on ${server.host}:${server.port}`);
+      return transport;
+    } catch (error) {
+      lastError = error;
+      logMailError(`SMTP verification failed on ${server.host}:${server.port}:`, error);
+    }
   }
+
+  throw lastError || new Error("Gmail SMTP verification failed.");
 };
 
 export const verifyContactEmailTransport = async () => {
