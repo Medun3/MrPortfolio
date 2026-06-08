@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { IoLogoWhatsapp } from "react-icons/io5";
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -156,7 +156,7 @@ ${formData.message}`;
             className="order-1 md:order-2 bg-white/60 backdrop-blur-md border border-gray-200 shadow-xl rounded-2xl p-6 sm:p-8 space-y-4 sm:space-y-5"
           >
             <h3 className="text-lg sm:text-xl font-semibold mb-4">
-              Send a WhatsApp Message 💬
+              Send a WhatsApp Message 
             </h3>
 
             <input
@@ -186,12 +186,13 @@ ${formData.message}`;
               className="w-full p-3 sm:p-4 rounded-xl border border-gray-300 focus:border-green-600 focus:ring-2 focus:ring-green-600 outline-none transition resize-none"
             />
 
-            <button
-              type="submit"
-              className="w-full bg-green-600 text-white py-3 sm:py-4 px-4 text-base sm:text-lg rounded-xl font-semibold hover:bg-green-700 active:scale-95 transition duration-300"
-            >
-              Send via WhatsApp 💬
-            </button>
+          <button
+  type="submit"
+  className="w-full bg-green-600 text-white py-3 sm:py-4 px-4 text-base sm:text-lg rounded-xl font-semibold hover:bg-green-700 active:scale-95 transition duration-300 flex items-center justify-center gap-2"
+>
+  <span>Send via WhatsApp</span>
+  <IoLogoWhatsapp size={24} />
+</button>
 
             {status && (
               <p className="text-sm text-center text-gray-600">
